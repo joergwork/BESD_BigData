@@ -37,7 +37,7 @@ Vagrant.configure(2) do |config|
   # the path on the host to the actual folder. The second argument is
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
-  # config.vm.synced_folder "../data", "/vagrant_data"
+  config.vm.synced_folder "../data", "/vagrant_data", disabled: true
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
@@ -83,7 +83,7 @@ Vagrant.configure(2) do |config|
     systemctl disable firewalld
     service firewalld stop
     setenforce 0
-    sed -ibak s/^SELINUX=.*/SELINUX=disabled/g /etc/selinux/config 
+    sed -i.bak s/^SELINUX=.*/SELINUX=disabled/g /etc/selinux/config 
     echo umask 0022 >> /etc/profile
 # ambari 
     yum install -y wget
