@@ -22,7 +22,7 @@ Vagrant.configure(2) do |config|
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
-  # config.vm.network "forwarded_port", guest: 80, host: 8080
+  config.vm.network "forwarded_port", guest: 8080, host: 8080
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
@@ -53,7 +53,14 @@ Vagrant.configure(2) do |config|
   #
   # View the documentation for the provider you are using for more
   # information on available options.
-
+  config.vm.provider "virtualbox" do |vb|
+    # Display the VirtualBox GUI when booting the machine
+    vb.gui = false
+ 
+    # Customize the amount of memory on the VM:
+    vb.memory = "4096"
+  end
+ 
   # Define a Vagrant Push strategy for pushing to Atlas. Other push strategies
   # such as FTP and Heroku are also available. See the documentation at
   # https://docs.vagrantup.com/v2/push/atlas.html for more information.
@@ -68,4 +75,22 @@ Vagrant.configure(2) do |config|
   #   sudo apt-get update
   #   sudo apt-get install -y apache2
   # SHELL
+  config.vm.provision "shell", inline: <<-SHELL
+    yum update -y
+    yum install -y ntp
+    systemctl enable ntpd
+    systemctl start ntpd
+    systemctl disable firewalld
+    service firewalld stop
+    setenforce 0
+    sed -ibak s/^SELINUX=.*/SELINUX=disabled/g /etc/selinux/config 
+    echo umask 0022 >> /etc/profile
+# ambari 
+    yum install -y wget
+    wget -nv http://public-repo-1.hortonworks.com/ambari/centos7/2.x/updates/2.4.2.0/ambari.repo -O /etc/yum.repos.d/ambari.repo
+    yum install -y ambari-server
+    ambari-server setup -s
+    ambari-server start
+  SHELL
+ 
 end
